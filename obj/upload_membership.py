@@ -1,26 +1,14 @@
-import os
-import pymysql
-from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
+from db import connect_pg, connect
+from flask import request, jsonify
 
 
-load_dotenv()
-
-db_host = os.getenv("DB_HOST")
-db_user = os.getenv("DB_USER")
-db_pass = os.getenv("DB_PASS")
-db_svc = os.getenv("DB_SRVC")
+## Image
+upload_dir = '/home/fernaldya/membership/images/'
+allowed_ext = {'png', 'jpg', 'jpeg'}
 
 
-conn = pymysql.connect(
-    host=db_host,
-    user=db_user,
-    password=db_pass,
-    database=db_svc
-)
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_ext
 
-
-cursor = conn.cursor()
-
-
-cursor.close()
-conn.close()
+def save_to_db_pg(name, img_path, number):

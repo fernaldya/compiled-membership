@@ -1,1 +1,4 @@
 .env
+/img/*
+/templates/test_upload.html
+app.py
