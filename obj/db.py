@@ -23,7 +23,7 @@ db_config_pg = {
 
 # Database
 ## Mysql
-def connect():
+def connect_mysql():
     conn = pymysql.connect(
         host=db_config['db_host'],
         user=db_config['db_user'],
@@ -43,3 +43,7 @@ def connect_pg():
         port=5432
     )
     return conn
+
+
+if __name__ == '__main__':
+    print('Successfully connected to the database!')
