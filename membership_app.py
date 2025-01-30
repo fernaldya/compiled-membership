@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-from obj.insert_db import insert_data_pg
+from obj.insert_db import insert_data_pg, MembershipExistsError
 
 
 load_dotenv()
@@ -14,11 +14,12 @@ def home():
     """Render index.html"""
     return render_template('index.html')
 
+
 @membership_app.route("/upload", methods=['POST'])
 def fetch_user_upload():
-    name = request.form.get('membership_name')
+    name = request.form.get('membership_name').upper()
     img = request.files.get('file')
-    number = request.form.get('number')
+    number = request.form.get('number').upper()
 
     if not name:
         return '<h1>Membership name is required.</h1>', 400
@@ -40,10 +41,13 @@ def fetch_user_upload():
     if number:
         membership_number = number
 
-    insert_data_pg(name, file_path, membership_number)
+    try:
+        insert_data_pg(name, file_path, membership_number)
+    except MembershipExistsError as e:
+        return jsonify({'error': str(e)}), 400
 
     return jsonify({
-        'message': 'Data saved successfully!',
+        'message': 'Membership uploaded successfully!',
         'name': name,
         'path': file_path,
         'number': number
