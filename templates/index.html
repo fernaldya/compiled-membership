@@ -1,138 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Compiled Memberships</title>
-    <style>
-        .membership-image {
-            max-width: 60%;
-            cursor: pointer;
-            height: auto;
-        }
-        .error-message {
-            color: red;
-            margin: 0;
-        }
-        .success-message {
-            color: green;
-            margin: 0;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            margin: auto;
-            display: block;
-            width: 80%;
-            max-width: 700px;
-        }
-        .close {
-            position: absolute;
-            top: 15px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        .close:hover,
-        .close:focus {
-            color: #bbb;
-            text-decoration: none;
-            cursor: pointer;
-        }
-    </style>
-    <script>
-        function toggleFields() {
-            const imageInput = document.getElementById("file");
-            const numberInput = document.getElementById("number");
-            const errorMessage = document.getElementById("error-message");
 
-            if (imageInput.files.length === 0) {
-                numberInput.required = true;
-            } else {
-                numberInput.required = false;
-            }
+    <!-- Styles -->
+    <link rel="stylesheet" href="/styles/styles.css">
 
-            if (!numberInput.value) {
-                imageInput.required = true;
-            } else {
-                imageInput.required = false;
-            }
-
-            validateFileSize(imageInput, errorMessage);
-        }
-
-        function validateFileSize(imageInput, errorMessage) {
-            if (imageInput.files.length > 0) {
-                const fileSize = imageInput.files[0].size / 1024 / 1024;
-                if (fileSize > 2) {
-                    errorMessage.textContent = "File size should be less than 2MB!";
-                    imageInput.value = "";
-                } else {
-                    errorMessage.textContent = "";
-                }
-            }
-        }
-
-        function submitForm(event) {
-            event.preventDefault();
-
-            const form = document.querySelector("form");
-            const formData = new FormData(form);
-            const successMessage = document.getElementById("success-message");
-            const errorMessage = document.getElementById("error-message");
-
-            fetch("/upload", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    errorMessage.textContent = data.error;
-                    successMessage.textContent = "";
-                } else {
-                    successMessage.textContent = data.message;
-                    errorMessage.textContent = "";
-                    form.reset();
-                }
-            })
-            .catch(error => {
-                errorMessage.textContent = "An error occurred while submitting the membership!";
-                successMessage.textContent = "";
-            });
-        }
-
-        function openModal() {
-            const modal = document.getElementById("myModal");
-            const modalImg = document.getElementById("img01");
-
-            modal.style.display = "block";
-            modalImg.src = imageSrc;
-
-            const span = document.getElementsByClassName("close")[0];
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-        }
-    </script>
-  </head>
-  <body>
+    <!-- Lightbox CSS-->
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet"> -->
+</head>
+<body>
     <h1>Membership List</h1>
     <table border="1">
         <thead>
@@ -149,7 +29,9 @@
                     <td>{{ membership.number }}</td>
                     <td>
                         {% if membership.image %}
-                            <img src="{{ membership.image }}" alt="{{ membership.name }}" class="membership-image" onclick="openModal('{{ membership.image }}')">
+                            <!-- <img src="{{ membership.image }}" alt="{{ membership.name }}" class="membership-image" onclick="openModal('{{ membership.image }}')"> -->
+                            <a href="{{ membership.image }}" data-lightbox="membership-image" data-title="{{ membership.name }}">
+                                <img src="{{ membership.image }}" alt="{{ membership.name }}" class="membership-image">
                         {% else %}
                             <!-- [NO IMAGE] -->
                         {% endif %}
@@ -160,23 +42,29 @@
     <h1>Upload Membership Data</h1>
     <form action="/upload" method="POST" enctype="multipart/form-data" onsubmit="submitForm(event)">
         <div class="form-group">
-            <label for="membership_name">Name:</label>
+            <label for="membership_name">Membership Name:</label>
             <input type="text" id="membership_name" name="membership_name" required>
         </div>
 
         <div class="form-group">
-            <label for="file">Membership image:</label>
+            <label for="file">Membership Image:</label>
             <input type="file" id="file" name="file" accept=".jpg,.png,.jpeg" onchange="toggleFields()" required>
             <span id="error-message" class="error-message"></span>
         </div>
 
         <div class="form-group">
-            <label for="number">Membership number:</label>
+            <label for="number">Membership Number:</label>
             <input type="text" id="number" name="number" onchange="toggleFields()" required>
         </div>
 
         <button type="submit">Upload</button>
     </form>
     <span id="success-message" class="success-message"></span>
-  </body>
+
+    <!-- Lightbox JS-->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox-plus-jquery.min.js"></script> -->
+
+    <!-- Scripts -->
+    <script src="/scripts/scripts.js"></script>
+</body>
 </html>
