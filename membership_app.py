@@ -7,7 +7,7 @@ from obj.db import connect_pg
 
 load_dotenv()
 
-membership_app = Flask(__name__)
+membership_app = Flask(__name__, static_folder='static')
 membership_app.config['UPLOAD_DIR'] = os.path.join('static', 'img')
 
 if not os.path.exists(membership_app.config['UPLOAD_DIR']):

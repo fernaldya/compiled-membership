@@ -7,10 +7,10 @@
     <title>Compiled Memberships</title>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="/styles/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
 
     <!-- Lightbox CSS-->
-    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet"> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
 </head>
 <body>
     <h1>Membership List</h1>
@@ -62,9 +62,9 @@
     <span id="success-message" class="success-message"></span>
 
     <!-- Lightbox JS-->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox-plus-jquery.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox-plus-jquery.min.js"></script>
 
     <!-- Scripts -->
-    <script src="/scripts/scripts.js"></script>
+    <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
 </body>
 </html>
