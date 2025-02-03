@@ -20,6 +20,7 @@
                 <th>Name</th>
                 <th>Membership Number</th>
                 <th>Membership Image</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -29,15 +30,18 @@
                     <td>{{ membership.number }}</td>
                     <td>
                         {% if membership.image %}
-                            <!-- <img src="{{ membership.image }}" alt="{{ membership.name }}" class="membership-image" onclick="openModal('{{ membership.image }}')"> -->
                             <a href="{{ membership.image }}" data-lightbox="membership-image" data-title="{{ membership.name }}">
                                 <img src="{{ membership.image }}" alt="{{ membership.name }}" class="membership-image">
                         {% else %}
                             <!-- [NO IMAGE] -->
                         {% endif %}
                     </td>
+                    <td>
+                        <button onclick="deleteMembership('{{ membership.name }}')">Delete</button>
+                    </td>
                 </tr>
             {% endfor %}
+        </tbody>
     </table>
     <h1>Upload Membership Data</h1>
     <form action="/upload" method="POST" enctype="multipart/form-data" onsubmit="submitForm(event)">

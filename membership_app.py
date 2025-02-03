@@ -1,8 +1,9 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-from obj.insert_db import insert_data_pg, MembershipExistsError
 from obj.db import connect_pg
+from obj.insert_db import insert_data_pg, MembershipExistsError
+from obj.delete_membership import delete_membership_pg
 
 
 load_dotenv()
@@ -66,6 +67,21 @@ def fetch_user_upload():
         'path': file_path,
         'number': number
     }), 200
+
+@membership_app.route("/delete", methods=['DELETE'])
+def delete_membership():
+    data = request.get_json()
+    name = data.get('name')
+    if not name:
+        return jsonify({'error': 'Membership name is required!'}), 400
+    try:
+        result = delete_membership_pg(name)
+        if result == 'Membership not found!':
+            return jsonify({'error': result}), 404
+        else:
+            return jsonify({'message': result}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     membership_app.run(debug=True)

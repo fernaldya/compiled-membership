@@ -59,21 +59,25 @@ function submitForm(event) {
     });
 }
 
-// function openModal(imageSrc) {
-//     // console.log("image source:", imageSrc);
-//     const modal = document.getElementById("myModal");
-//     const modalImg = document.getElementById("img01");
-
-//     // if (modal && modalImg) {
-//     modal.style.display = "block";
-//     modalImg.src = imageSrc;
-
-//     modal.onclick = function(event) {
-//         if (event.target === modal) {
-//             modal.style.display = "none";
-//         }
-//     };
-//     // } else {
-//     //     console.error("Modal or modal image not found!");
-//     // };
-// }
+function deleteMembership(name) {
+    if (confirm("Are you sure you want to delete this membership?")) {
+        fetch(`/delete`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: name })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            alert("An error occurred while deleting the membership!");
+        });
+    }
+}
