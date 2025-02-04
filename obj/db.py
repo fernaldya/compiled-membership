@@ -6,10 +6,11 @@ import psycopg2
 
 load_dotenv()
 db_config = {
-    'db_host': os.getenv("DB_HOST"),
-    'db_user': os.getenv("DB_USER"),
-    'db_pass': os.getenv("DB_PASS"),
-    'db_svc': os.getenv("DB_SRVC")
+    'db_host': os.getenv("DB_HOST_MS"),
+    'db_user': os.getenv("DB_USER_MS"),
+    'db_pass': os.getenv("DB_PASS_MS"),
+    'db_svc': os.getenv("DB_SRVC_MS"),
+    'db_port': os.getenv("DB_PORT_MS")
 }
 
 db_config_pg = {
@@ -29,7 +30,7 @@ def connect_mysql():
         user=db_config['db_user'],
         password=db_config['db_pass'],
         database=db_config['db_svc'],
-        cursorclass=pymysql.cursors.DictCursor
+        port=int(db_config['db_port'])
     )
     return conn
 
