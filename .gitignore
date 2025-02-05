@@ -4,3 +4,4 @@
 app.py
 .vscode/*
 */__pycache__/*
+test.ipynb

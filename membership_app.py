@@ -1,9 +1,9 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-from obj.db import connect_pg
-from obj.insert_db import insert_data_pg, MembershipExistsError
-from obj.delete_membership import delete_membership_pg
+from obj.db import connect_pg, connect_mysql
+from obj.insert_db import insert_data_pg, insert_data_mysql, MembershipExistsError
+from obj.delete_membership import delete_membership_pg, delete_membership_ms
 
 
 load_dotenv()
@@ -17,7 +17,7 @@ if not os.path.exists(membership_app.config['UPLOAD_DIR']):
 @membership_app.route("/")
 def home():
     """Render index.html"""
-    conn = connect_pg()
+    conn = connect_mysql()
     try:
         with conn.cursor() as cursor:
             sql = 'select name, membership_number, membership_uri from memberships'
@@ -57,7 +57,7 @@ def fetch_user_upload():
         membership_number = number
 
     try:
-        insert_data_pg(name, file_path, membership_number)
+        insert_data_mysql(name, file_path, membership_number)
     except MembershipExistsError as e:
         return jsonify({'error': str(e)}), 400
 
@@ -75,7 +75,7 @@ def delete_membership():
     if not name:
         return jsonify({'error': 'Membership name is required!'}), 400
     try:
-        result = delete_membership_pg(name)
+        result = delete_membership_ms(name)
         if result == 'Membership not found!':
             return jsonify({'error': result}), 404
         else:
