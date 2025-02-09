@@ -1,7 +1,8 @@
 .env
-/img/*
+static/img/*
 /templates/test_upload.html
 app.py
 .vscode/*
 */__pycache__/*
 test.ipynb
+containerfile

@@ -20,7 +20,8 @@
                 <th>Name</th>
                 <th>Membership Number</th>
                 <th>Membership Image</th>
-                <th>Actions</th>
+                <th>Owner</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -36,6 +37,7 @@
                             <!-- [NO IMAGE] -->
                         {% endif %}
                     </td>
+                    <td>{{ membership.owner }}</td>
                     <td>
                         <button onclick="deleteMembership('{{ membership.name }}')">Delete</button>
                     </td>
@@ -59,6 +61,16 @@
         <div class="form-group">
             <label for="number">Membership Number:</label>
             <input type="text" id="number" name="number" onchange="toggleFields()" required>
+        </div>
+
+        <div class="form-group">
+            <label for="owner">Owner:</label>
+            <select id="owner" name="owner" required>
+                <option value="">Select Owner</option>
+                {% for owner in owners %}
+                    <option value="{{ owner.owner }}">{{ owner.owner }}</option>
+                {% endfor %}
+            </select>
         </div>
 
         <button type="submit">Upload</button>

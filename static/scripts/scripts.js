@@ -51,6 +51,7 @@ function submitForm(event) {
             successMessage.textContent = data.message;
             errorMessage.textContent = "";
             form.reset();
+            location.reload();
         }
     })
     .catch(error => {

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Membership Owner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .home-button {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="home-button">
+            <a href="/">Home</a>
+    </div>
+    <h1>Manage Membership Owners</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Existing Owners</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for owner in owners %}
+                <tr>
+                    <td>{{ owner.owner }}</td>
+                    <td>
+                        <button onclick="deleteOwner('{{ owner.owner }}')">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+    </table>
+    <h2>Add New Owner</h2>
+    <form action="/add_owner" method="POST" onsubmit="addOwner(event)">
+        <div class="form-group">
+            <label for="owner_name">Owner:</label>
+            <input type="text" id="owner_name" name="owner_name" required>
+        </div>
+        <button type="submit">Add Owner</button>
+    </form>
+    <span id="error-message" class="error-message"></span>
+    <span id="success-message" class="success-message"></span>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
+
+    <script>
+        function addOwner(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const successMessage = document.getElementById('success-message');
+            const errorMessage = document.getElementById('error-message');
+
+            fetch('/add_owner', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    errorMessage.textContent = data.error;
+                    successMessage.textContent = '';
+                } else {
+                    successMessage.textContent = data.success;
+                    errorMessage.textContent = '';
+                    form.reset();
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                errorMessage.textContent = 'An error occurred while adding the owner.';
+                successMessage.textContent = '';
+            });
+        }
+
+        function deleteOwner(ownerName) {
+            if (confirm('Are you sure you want to delete this owner?')) {
+                fetch(`/delete_owner`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ owner: ownerName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    alert('An error occurred while deleting the owner.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

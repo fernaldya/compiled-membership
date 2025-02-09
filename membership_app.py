@@ -1,9 +1,9 @@
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
 from dotenv import load_dotenv
-from obj.db import connect_pg, connect_mysql
-from obj.insert_db import insert_data_pg, insert_data_mysql, MembershipExistsError
-from obj.delete_membership import delete_membership_pg, delete_membership_ms
+from obj.db import connect_pg
+from obj.insert import insert_data_pg, add_owner_pg, MembershipExistsError
+from obj.delete import delete_membership_pg, delete_owner_pg
 
 
 load_dotenv()
@@ -14,27 +14,40 @@ membership_app.config['UPLOAD_DIR'] = os.path.join('static', 'img')
 if not os.path.exists(membership_app.config['UPLOAD_DIR']):
     os.makedirs(membership_app.config['UPLOAD_DIR'])
 
+# def no_cache(response):
+#     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+#     response.headers['Pragma'] = 'no-cache'
+#     response.headers['Expires'] = '-1'
+#     return response
+
+
 @membership_app.route("/")
 def home():
     """Render index.html"""
-    conn = connect_mysql()
+    conn = connect_pg()
     try:
         with conn.cursor() as cursor:
-            sql = 'select name, membership_number, membership_uri from memberships'
-            cursor.execute(sql)
+            sql_member = 'select name, membership_number, membership_uri, owner from memberships'
+            cursor.execute(sql_member)
             memberships = cursor.fetchall()
-            memberships = [{'name': row[0], 'number': row[1], 'image': row[2]} for row in memberships]
+            memberships = [{'name': row[0], 'number': row[1], 'image': row[2], 'owner': row[3]} for row in memberships]
+
+            sql_owner = 'select distinct owner from owners'
+            cursor.execute(sql_owner)
+            owners = cursor.fetchall()
+            owners = [{'owner': row[0]} for row in owners]
     finally:
         conn.close()
 
-    return render_template('index.html', memberships=memberships)
+    return render_template('index.html', memberships=memberships, owners=owners)
 
 
 @membership_app.route("/upload", methods=['POST'])
 def fetch_user_upload():
-    name = request.form.get('membership_name').upper()
+    name = request.form.get('membership_name').upper().strip()
     img = request.files.get('file')
-    number = request.form.get('number')
+    number = request.form.get('number').strip()
+    owner = request.form.get('owner')
 
     if not name:
         return '<h1>Membership name is required.</h1>', 400
@@ -57,7 +70,7 @@ def fetch_user_upload():
         membership_number = number
 
     try:
-        insert_data_mysql(name, file_path, membership_number)
+        insert_data_pg(name, file_path, membership_number, owner)
     except MembershipExistsError as e:
         return jsonify({'error': str(e)}), 400
 
@@ -75,7 +88,7 @@ def delete_membership():
     if not name:
         return jsonify({'error': 'Membership name is required!'}), 400
     try:
-        result = delete_membership_ms(name)
+        result = delete_membership_pg(name)
         if result == 'Membership not found!':
             return jsonify({'error': result}), 404
         else:
@@ -83,5 +96,46 @@ def delete_membership():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+
+# Ownership
+@membership_app.route("/ownership", methods=['GET'])
+def ownership():
+    conn = connect_pg()
+    try:
+        with conn.cursor() as cursor:
+            sql = 'select owner from owners'
+            cursor.execute(sql)
+            owners = cursor.fetchall()
+            owners = [{'owner': row[0]} for row in owners]
+    finally:
+        conn.close()
+
+    return render_template('ownership.html', owners=owners)
+
+@membership_app.route("/add_owner", methods=['POST'])
+def add_owner():
+    owner_name = request.form.get('owner_name').upper().strip()
+
+    if not owner_name:
+        return jsonify({'error': 'Owner name is required!'}), 400
+
+    try:
+        add_owner_pg(owner_name)
+        return jsonify({'message': 'Owner added successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@membership_app.route("/delete_owner", methods=['DELETE'])
+def delete_owner():
+    data = request.get_json()
+    owner_name = data.get('owner')
+    if not owner_name:
+        return jsonify({'error': 'Owner name is required!'}), 400
+    try:
+        result = delete_owner_pg(owner_name)
+        return jsonify({'message': result}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
 if __name__ == '__main__':
-    membership_app.run(debug=True)
+    membership_app.run(debug=True, port=5000)
